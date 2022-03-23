@@ -2,8 +2,10 @@ package br.com.allteck.login.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import br.com.allteck.login.entity.User;
@@ -15,19 +17,20 @@ public class UserService {
 	private UserRepository userRepo;
 	private List<User> usersList = new ArrayList<>();
 	public User findUser(String name, String password) {
-		try {
-			usersList = userRepo.findAll();
-			for (User u : usersList) {
-				if(u.getName().equals(name) && u.getPassword().equals(password))
-					return u;
-			}
-			throw new NullPointerException();
-		}
-		catch(Exception e) {
-			return new User(Long.valueOf(0),"","","");
-		}
+		User user = new User();
+		user.setName(name);
+		user.setPassword(password);
+		Example<User> example = Example.of(user);
+		Optional<User> optional = userRepo.findOne(example);
+		return optional.orElse(null);
 	}
-	public void AddUser(User user) {
-		userRepo.save(user);
+	public User AddUser(User user) {
+		return userRepo.save(user);
+	}
+	
+	
+	public List<User> listAllUsers(){
+		usersList = userRepo.findAll();
+		return usersList;
 	}
 }
